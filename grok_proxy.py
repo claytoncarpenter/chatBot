@@ -13,7 +13,7 @@ app.add_middleware(
 
 model = ChatXAI(
     model="grok-3-mini",
-    api_key="xai-jdJtcE72wGZHTKvhzB6Yl9nDRiNWcAiYFP0cQNVreh0Bcz2j2D5UKuqb8lk129xrOzVICUlgO1CuAdM1"
+    api_key=""
 )
 
 @app.post("/api/grok")
