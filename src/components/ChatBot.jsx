@@ -20,7 +20,7 @@ export default function ChatBot() {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer xai-jdJtcE72wGZHTKvhzB6Yl9nDRiNWcAiYFP0cQNVreh0Bcz2j2D5UKuqb8lk129xrOzVICUlgO1CuAdM1"
+                    "Authorization": "Bearer API_KEY"
                 },
                 body: JSON.stringify({
                     messages: newMessages
