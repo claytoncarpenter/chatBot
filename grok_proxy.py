@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from langchain_xai import ChatXAI
+import os
 
 app = FastAPI()
 
@@ -13,7 +14,7 @@ app.add_middleware(
 
 model = ChatXAI(
     model="grok-3-mini",
-    api_key=""
+    api_key=os.getenv("XAI_API_KEY")
 )
 
 @app.post("/api/grok")

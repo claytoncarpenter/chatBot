@@ -7,8 +7,13 @@ let messages = [];
 
 function renderMessages() {
   messagesDiv.innerHTML = messages.map(
-    (msg) => `<div><b>${msg.role}:</b> ${msg.content}</div>`
+    (msg) => `
+      <div class="chatbot-message ${msg.role}">
+        <div class="chatbot-bubble">${msg.content}</div>
+      </div>
+    `
   ).join("");
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
 async function sendMessage() {
