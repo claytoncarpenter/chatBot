@@ -32,7 +32,8 @@ async function sendMessage() {
       body: JSON.stringify({ messages })
     });
     const data = await response.json();
-    const botContent = data.choices?.[0]?.message?.content?.content || "No response";
+    console.log(data.choices?.[0]?.message?.content);
+    const botContent = data.choices?.[0]?.message?.content || "No response";
     messages.push({ role: "assistant", content: botContent });
     renderMessages();
   } catch (err) {
