@@ -2,8 +2,13 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from langchain_xai import ChatXAI
 import os
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-
+import csv
+import json
+from langchain.chat_models import init_chat_model
+from langchain_core.tools import tool
+from langgraph.graph import MessageGraph
+from langgraph.prebuilt import ToolNode
+os.environ["LANGCHAIN_TRACING_V2"] = "true"
 app = FastAPI()
 
 app.add_middleware(
@@ -18,62 +23,59 @@ model = ChatXAI(
     api_key=os.getenv("XAI_API_KEY")
 )
 
+modelOpenAI = init_chat_model("openai:gpt-4.1")
 
-from typing import Optional
+@tool
+def getDeposits(CustomerID: str = None, **kwargs) -> list:
+    """Returns all bank deposits as a list of dicts. Optionally filter by CustomerID."""
+    print("Fetching deposits...")
+    with open("C:/Users/clayt/astro/wandering-wavelength/src/assets/Deposits.csv", newline="", encoding="utf-8") as csvfile:
+        reader = csv.DictReader(csvfile)
+        deposits = list(reader)
+    if CustomerID:
+        deposits = [d for d in deposits if d.get("CustomerID") == CustomerID]
+    return deposits
+    
 
-from pydantic import BaseModel, Field
+tools = [getDeposits]
 
+# Build the LangGraph
+graph = MessageGraph()
+graph.add_node("llm", model)
+graph.add_node("tools", ToolNode(tools))
+graph.add_edge("llm", "tools")
+graph.add_edge("tools", "llm")
+graph.set_entry_point("llm")
+graph.set_finish_point("llm")
 
-class SAR(BaseModel):
-    """Information about a person."""
-
-    # ^ Doc-string for the entity Person.
-    # This doc-string is sent to the LLM as the description of the schema Person,
-    # and it can help to improve extraction results.
-
-    # Note that:
-    # 1. Each field is an `optional` -- this allows the model to decline to extract it!
-    # 2. Each field has a `description` -- this description is used by the LLM.
-    # Having a good description can help improve extraction results.
-    activityType: Optional[str] = Field(default=None, description="The type of money laundering activity: e.g., structuring, placement, layering, smurfing etc.")
-    accounts: Optional[list[str]] = Field(
-        default=None, description="The accounts involved in the activity"
-    )
-    amount: Optional[list[str]] = Field(
-        default=None, description="The total dollar amount involved in the activity"
-    )
-    narrative: Optional[str] = Field(
-        default=None, description="The narrative description of the activity written to make a SAR (Suspicious Activity Report) to the authorities."
-    )
-
-
-prompt_template = ChatPromptTemplate.from_messages(
-    [
-        (
-            "system",
-            "You are an expert extraction algorithm and SAR (Suspicious Activity Report) writer."
-            "Only extract relevant information from the text."
-            "Write a SAR narrative based on the facts of the case."
-            "If you do not know the value of an attribute asked to extract, "
-            "return null for the attribute's value.",
-        ),
-        # Please see the how-to about improving performance with
-        # reference examples.
-        # MessagesPlaceholder('examples'),
-        ("human", "{text}"),
-    ]
-)
-
-structured_llm = model.with_structured_output(schema=SAR)
+# Compile the graph to get a runnable object
+compiled_graph = graph.compile()
 
 @app.post("/api/grok")
 async def grok_proxy(request: Request):
     body = await request.json()
     messages = body.get("messages", [])
-    #print(f"Received messages: {messages[-1]['content']}")
-    # model.invoke expects a list of messages
-    prompt = prompt_template.invoke({"text": messages[-1]['content']})
-    print(prompt)
-    result = structured_llm.invoke(prompt)
-    print(f"Result: {str(result)}")
-    return {"choices": [{"message": {"content": str(result)}}]}
+
+    # Add a system prompt at the start of the conversation
+    system_prompt = {
+        "role": "system",
+        "content": (
+            "You are a Suspicious Activity Report (SAR) writer at Claytons Bank. "
+            "You can look up bank transactions using the getDeposits tool. "
+            "When a user asks about transactions or suspicious activity, use the tool to find relevant data, "
+            "then write a clear and concise SAR based on your findings."
+        )
+    }
+
+    # Only keep the system prompt and the latest user message
+    user_message = next((m for m in reversed(messages) if m.get("role") == "user"), None)
+    if user_message:
+        messages = [system_prompt, user_message]
+    else:
+        messages = [system_prompt]
+
+    # Now use the compiled graph to invoke
+    result = compiled_graph.invoke(messages)
+    print(result)
+    # The result is a list of messages; return the last one as the assistant's reply
+    return result
