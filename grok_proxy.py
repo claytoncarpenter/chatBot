@@ -24,7 +24,7 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 
-class Car(BaseModel):
+class SAR(BaseModel):
     """Information about a person."""
 
     # ^ Doc-string for the entity Person.
@@ -35,12 +35,15 @@ class Car(BaseModel):
     # 1. Each field is an `optional` -- this allows the model to decline to extract it!
     # 2. Each field has a `description` -- this description is used by the LLM.
     # Having a good description can help improve extraction results.
-    brand: Optional[str] = Field(default=None, description="The make or brand of the car")
-    color: Optional[str] = Field(
-        default=None, description="The color of the car"
+    activityType: Optional[str] = Field(default=None, description="The type of money laundering activity: e.g., structuring, placement, layering, smurfing etc.")
+    accounts: Optional[list[str]] = Field(
+        default=None, description="The accounts involved in the activity"
     )
-    bodyType: Optional[str] = Field(
-        default=None, description="The type of the car, e.g., sedan, SUV, etc."
+    amount: Optional[list[str]] = Field(
+        default=None, description="The total dollar amount involved in the activity"
+    )
+    narrative: Optional[str] = Field(
+        default=None, description="The narrative description of the activity written to make a SAR (Suspicious Activity Report) to the authorities."
     )
 
 
@@ -48,8 +51,9 @@ prompt_template = ChatPromptTemplate.from_messages(
     [
         (
             "system",
-            "You are an expert extraction algorithm. "
-            "Only extract relevant information from the text. "
+            "You are an expert extraction algorithm and SAR (Suspicious Activity Report) writer."
+            "Only extract relevant information from the text."
+            "Write a SAR narrative based on the facts of the case."
             "If you do not know the value of an attribute asked to extract, "
             "return null for the attribute's value.",
         ),
@@ -60,7 +64,7 @@ prompt_template = ChatPromptTemplate.from_messages(
     ]
 )
 
-structured_llm = model.with_structured_output(schema=Car)
+structured_llm = model.with_structured_output(schema=SAR)
 
 @app.post("/api/grok")
 async def grok_proxy(request: Request):

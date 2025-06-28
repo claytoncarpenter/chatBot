@@ -1,22 +1,26 @@
 .chatbot-container {
-  max-width: 400px;
-  margin: 2rem auto;
+  width: 100vw;
+  height: 100vh;
+  min-height: 100vh;
+  min-width: 100vw;
+  margin: 0;
+  padding: 0;
   background: #222;
-  border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.2);
-  padding: 1.5rem;
-  font-family: 'Segoe UI', Arial, sans-serif;
-  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  box-sizing: border-box;
 }
-
 .chatbot-messages {
-  min-height: 220px;
-  max-height: 320px;
+  flex: 1 1 auto;
+  width: 100%;
+  max-width: 600px;
+  min-height: 0;
   overflow-y: auto;
   background: #181818;
-  border-radius: 8px;
+  border-radius: 8px 8px 0 0;
   padding: 1rem;
-  margin-bottom: 1rem;
   font-size: 1rem;
 }
 
@@ -55,8 +59,13 @@
 }
 
 .chatbot-input-row {
+  width: 100%;
+  max-width: 600px;
   display: flex;
   gap: 0.5rem;
+  padding: 1rem;
+  background: #222;
+  border-radius: 0 0 8px 8px;
 }
 
 .chatbot-input {
