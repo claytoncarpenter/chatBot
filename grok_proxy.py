@@ -45,7 +45,10 @@ def get_transactions(customer_id: str = None) -> list:
         port=os.getenv("DB_PORT", "5432"),
         sslmode="require"
     )
-    query = "SELECT * FROM public.transactions"
+    if customer_id:
+        query = f"SELECT * FROM public.transactions WHERE customer_id = {customer_id}"
+    else:
+        query = "SELECT * FROM public.transactions"
     cursor = conn.cursor()
     cursor.execute(query)
     transactions = cursor.fetchall()
