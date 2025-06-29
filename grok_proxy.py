@@ -33,9 +33,9 @@ graph_builder = StateGraph(State)
 llm = init_chat_model("openai:gpt-4.1")
 
 @tool
-def get_deposits(customer_id: str = None) -> list:
-    """Returns all bank deposits as a list of dicts. Optionally filter by customer_id."""
-    print("get_deposits tool called with:", customer_id)
+def get_transactions(customer_id: str = None) -> list:
+    """Returns all bank transactions as a list of dicts. Optionally filter by customer_id."""
+    print("get_transactions tool called with:", customer_id)
     conn = psycopg2.connect(
         dbname=os.getenv("DB_NAME", "sarbotdb"),
         user=os.getenv("DB_USER", "sarbotdb_owner"),
@@ -46,12 +46,12 @@ def get_deposits(customer_id: str = None) -> list:
     query = "SELECT * FROM public.transactions"
     cursor = conn.cursor()
     cursor.execute(query)
-    deposits = cursor.fetchall()
+    transactions = cursor.fetchall()
     cursor.close()
     conn.close()
-    return deposits
+    return transactions
 
-tools = [get_deposits]
+tools = [get_transactions]
 llm_with_tools = llm.bind_tools(tools)
 
 def chatbot(state: State):
@@ -78,7 +78,7 @@ async def grok_proxy(request: Request):
         "role": "system",
         "content": (
             "You are a Suspicious Activity Report (SAR) writer at Claytons Bank. "
-            "You can look up bank transactions using the get_deposits tool. "
+            "You can look up bank transactions using the get_transactions tool. "
             "When a user asks about transactions or suspicious activity, use the tool to find relevant data, "
             "then write a clear and concise SAR based on your findings."
             "You do not escalate any findings, you simply respond with a SAR for the activity."
