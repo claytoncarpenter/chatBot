@@ -36,12 +36,14 @@ llm = init_chat_model("openai:gpt-4.1")
 def get_transactions(customer_id: str = None) -> list:
     """Returns all bank transactions as a list of dicts. Optionally filter by customer_id."""
     print("get_transactions tool called with:", customer_id)
+    
     conn = psycopg2.connect(
-        dbname=os.getenv("DB_NAME", "sarbotdb"),
-        user=os.getenv("DB_USER", "sarbotdb_owner"),
+        dbname="sarbotdb",
+        user="sarbotdb_owner",
         password=os.getenv("NEON_PASS"),
         host=os.getenv("NEON_URL"),
-        port=os.getenv("DB_PORT", "5432")
+        port=os.getenv("DB_PORT", "5432"),
+        sslmode="require"
     )
     query = "SELECT * FROM public.transactions"
     cursor = conn.cursor()
