@@ -2,6 +2,7 @@ from unittest import result
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 import os
+import psycopg2
 import csv
 from langchain.chat_models import init_chat_model
 from langchain_core.tools import tool
@@ -35,11 +36,19 @@ llm = init_chat_model("openai:gpt-4.1")
 def get_deposits(customer_id: str = None) -> list:
     """Returns all bank deposits as a list of dicts. Optionally filter by customer_id."""
     print("get_deposits tool called with:", customer_id)
-    with open("src/assets/Deposits.csv", newline="", encoding="utf-8") as csvfile:
-        reader = csv.DictReader(csvfile)
-        deposits = list(reader)
-    if customer_id:
-        deposits = [d for d in deposits if d.get("CustomerID") == customer_id]
+    conn = psycopg2.connect(
+        dbname=os.getenv("DB_NAME", "sarbotdb"),
+        user=os.getenv("DB_USER", "sarbotdb_owner"),
+        password=os.getenv("NEON_PASS"),
+        host=os.getenv("NEON_URL"),
+        port=os.getenv("DB_PORT", "5432")
+    )
+    query = "SELECT * FROM public.transactions"
+    cursor = conn.cursor()
+    cursor.execute(query)
+    deposits = cursor.fetchall()
+    cursor.close()
+    conn.close()
     return deposits
 
 tools = [get_deposits]
