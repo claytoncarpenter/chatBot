@@ -1,4 +1,4 @@
-const apiUrl = "http://localhost:3001/api/grok";
+const apiUrl = "https://sarbot-ejdnfkh9f2dhbpgu.eastus2-01.azurewebsites.net/api/grok";
 const messagesDiv = document.getElementById("messages");
 const input = document.getElementById("chat-input");
 const button = document.getElementById("send-btn");
