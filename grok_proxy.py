@@ -113,7 +113,7 @@ async def grok_proxy(request: Request):
         "content": (
             "You are a Suspicious Activity Report (SAR) writer at Claytons Bank. "
             "You can look up bank transactions using the get_transactions tool. "
-            "The get_transactions tool returns a list of transactions with the columns: id, customer_id, account_number, transaction_date, amount, credit_debit"
+            "The get_transactions tool returns a list of transactions with the columns: id, customer_id, account_number, transaction_date, amount (USD), credit_debit"
             "customer_id is a unique identifier for each customer, and account_number is a unique identifier for each bank account."
             "When a user asks about transactions or suspicious activity, use the tool to find relevant data, "
             "then write a clear and concise SAR based on your findings."
@@ -143,12 +143,26 @@ async def grok_proxy(request: Request):
     except Exception:
         pass
 
-    
+    def sar_dict_to_html(sar):
+        return f"""
+        <div>
+          <h2>Suspicious Activity Report (SAR)</h2>
+          <p><strong>Customer IDs:</strong> {', '.join(sar.get('customer_ids', []))}</p>
+          <p><strong>Account Numbers:</strong> {', '.join(sar.get('account_numbers', []))}</p>
+          <p><strong>Total Amount:</strong> {sar.get('amount', '')}</p>
+          <p><strong>Transactions:</strong><br>{sar.get('transactions', '').replace('\n', '<br/>')}</p>
+          <p><strong>Narrative:</strong><br>{sar.get('narrative', '').replace('\n', '<br/>')}</p>
+        </div>
+        """
+
+    # In your endpoint, after parsing content:
+    html_content = sar_dict_to_html(content)
+
     return {
         "choices": [
             {
                 "message": {
-                    "content": json.dumps(content)
+                    "content": html_content
                 }
             }
         ]
