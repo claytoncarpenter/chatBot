@@ -1,5 +1,7 @@
 # SAR Agent ChatBot
 
+![Azure Deployed App](https://lively-moss-000bf3e0f.1.azurestaticapps.net/)
+
 This LLM agent uses tools to connect to external databases [(neon postgres)](https://neon.com/), query customer data to transaction records, analyze the transactions, and file SARs on the activity. The output is strictly structured for integration with other systems.
 
 
