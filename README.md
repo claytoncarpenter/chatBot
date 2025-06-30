@@ -1,12 +1,14 @@
 # SAR Agent ChatBot
 
-```sh
-npm create astro@latest -- --template basics
-uvicorn grok_proxy:app --reload --port 3001
-npm run dev
-```
+This LLM agent uses tools to connect to external databases [(neon postgres)](https://neon.com/), query customer data to transaction records, analyze the transactions, and file SARs on the activity. The output is strictly structured for integration with other systems.
 
-![Screenshot](./screenshot.jpg)
+
+DB Structure:
+![Neon](./screenshot_neon.jpg)
+
+
+UI:
+![SAR Agent](./screenshot.jpg)
 
 
 ## 🧞 Commands
