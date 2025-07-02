@@ -51,3 +51,17 @@ input.addEventListener("keydown", (e) => {
     sendMessage();
   }
 });
+
+
+// Hamburger menu toggle
+document.addEventListener("DOMContentLoaded", function() {
+  const hamburger = document.getElementById("hamburger");
+  const dropdown = document.getElementById("dropdown-menu");
+  document.addEventListener("click", function(e) {
+    if (hamburger.contains(e.target)) {
+      dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    } else {
+      dropdown.style.display = "none";
+    }
+  });
+});

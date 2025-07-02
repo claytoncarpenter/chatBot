@@ -8,7 +8,55 @@
         <title>SAR Bot</title>
     </head>
     <body>
-        <slot />
+        <div class="chatbot-header">
+            <div class="header-inner">
+                <span class="chatbot-title">SAR Agent ChatBot</span>
+                <div class="hamburger" id="hamburger">&#9776;</div>
+                <div class="dropdown-menu" id="dropdown-menu">
+                    <a href="https://github.com/claytoncarpenter/chatBot"
+                        >GitHub</a
+                    >
+                    <a href="https://neon.com/">Neon</a>
+                    <a href="https://azure.microsoft.com/">Azure</a>
+                </div>
+            </div>
+        </div>
+        <main class="main-content">
+            <slot />
+        </main>
+        <script>
+            // Hamburger menu toggle
+            document.addEventListener("DOMContentLoaded", function () {
+                const hamburger = document.getElementById("hamburger");
+                const dropdown = document.getElementById("dropdown-menu");
+
+                if (hamburger) {
+                    hamburger.addEventListener("click", function (e) {
+                        e.stopPropagation(); // Prevent document click from firing
+                        if (dropdown) {
+                            dropdown.style.display =
+                                dropdown.style.display === "block"
+                                    ? "none"
+                                    : "block";
+                        }
+                    });
+                }
+
+                // Hide dropdown when clicking outside
+                document.addEventListener("click", function () {
+                    if (dropdown) {
+                        dropdown.style.display = "none";
+                    }
+                });
+
+                // Prevent dropdown clicks from closing the menu
+                if (dropdown) {
+                    dropdown.addEventListener("click", function (e) {
+                        e.stopPropagation();
+                    });
+                }
+            });
+        </script>
     </body>
 </html>
 
@@ -16,9 +64,94 @@
     html,
     body {
         margin: 0;
-        width: 100vw;
-        height: 100vh;
         padding: 0;
+        min-height: 100vh;
+        height: 100vh;
+        background: #222;
         box-sizing: border-box;
+        overflow: hidden; /* Prevent scrollbars */
+    }
+    body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        height: 100vh;
+    }
+    .chatbot-header {
+        width: 100%;
+        background: #181818;
+        color: #fff;
+        border-radius: 0 0 8px 8px;
+        position: relative;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+        z-index: 10;
+        flex-shrink: 0;
+        padding: 0; /* Remove horizontal padding here */
+    }
+
+    .header-inner {
+        max-width: 900px; /* or your main content width */
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        width: 100%;
+        padding: 1rem 1.5rem;
+    }
+
+    .chatbot-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        margin: 0 auto;
+    }
+
+    .hamburger {
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 2rem;
+        cursor: pointer;
+        user-select: none;
+        padding: 0.2em 0.5em;
+        border-radius: 6px;
+        transition: background 0.2s;
+        z-index: 3;
+    }
+    .hamburger:hover {
+        background: #222;
+    }
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        top: 3.5rem;
+        right: 1rem;
+        background: #222;
+        border: 1px solid #444;
+        border-radius: 8px;
+        min-width: 160px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+        flex-direction: column;
+        z-index: 100;
+    }
+    .dropdown-menu a {
+        color: #fff;
+        padding: 0.8em 1.2em;
+        text-decoration: none;
+        display: block;
+        transition: background 0.2s;
+    }
+    .dropdown-menu a:hover {
+        background: #4f8cff;
+        color: #fff;
+    }
+    .main-content {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        overflow: auto; /* Only main content scrolls if needed */
     }
 </style>
